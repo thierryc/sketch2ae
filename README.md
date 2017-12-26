@@ -12,9 +12,27 @@ Quickly export selected layers or a whole artboard from Sketch with with type me
   [8638464d]: http://www.battleaxe.co/ "Battle Axe"
   [66b609ab]: https://www.sketchapp.com/ "Sketch App"
   [56a59ddd]: http://www.adobe.com/products/aftereffects.html "After Effects"
+  [bodymovin]: https://github.com/bodymovin/bodymovin "BodyMovin"
+  [lottie]: https://airbnb.design/lottie/ "Lottie"
 
 Installation and usage at: http://google.github.io/sketch2ae
 
+---
+
+# Change log
+## [0.53] - 2017-11-09
+### Changes
+- Removed the top-left anchor point for new shapes
+- Removed the top-left expression for Rectangles and Ellipse to add support for [BodyMovin][bodymovin] and [Lottie][lottie] export
+- Disabled transfer of Sketch masks with Ae's Set Matte effect. At this time the masking system is to complex to get right and leads to a lot of unnecessary effects that make things look awful.
+
+### Fixes
+- Text string error from apostrophes
+- Empty vector object error
+- Empty group error
+
+## [0.52] - 2017-05-24
+- Initial release
 
 
 ---

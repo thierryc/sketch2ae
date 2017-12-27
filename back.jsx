@@ -550,13 +550,14 @@ function addInnerShadow(r, layer) {
 
 // DEPRECIATED?
 function addClipping(layer) {
-	if (clippingMask > 0) {
-	 	var setMatte = layer("ADBE Effect Parade").addProperty("ADBE Set Matte3");
-	 	 clippingMask++;
-	 	 setMatte('ADBE Set Matte3-0001').setValue(clippingMask);
-	 } else {
-	 	return;
-	 }
+	//if (clippingMask > 0) {
+	// 	var setMatte = layer("ADBE Effect Parade").addProperty("ADBE Set Matte3");
+	// 	 clippingMask++;
+	// 	 setMatte('ADBE Set Matte3-0001').setValue(clippingMask);
+	// } else {
+	// 	return;
+	// }
+    return;
 }
 
 /** helper func that adds tangent data to the path object
@@ -946,8 +947,7 @@ function aeText(layer, opt_parent) {
 		labelColor = (Math.max(labelColor, 1) + 1) % 16;														// increment label color
 		r.enabled = layer.isVisible;																								// set layer visibility (eyeball)
 	}
-	r.label = labelColor;																									// set label color
-
+	r.label = labelColor;																													// set label color
 
 	var textProp = r("ADBE Text Properties")("ADBE Text Document");								// new text obj
 
@@ -955,13 +955,8 @@ function aeText(layer, opt_parent) {
 	textDoc.resetCharStyle();																											// reset character styles
 	textDoc.resetParagraphStyle();																								// reset paragraph styles
 
-	textDoc.font = layer.fontName;		// set font name
-	if(layer.fontSize > 0) {
-		textDoc.fontSize = layer.fontSize;
-        // set font size
-	} else {
-        return;
-    }
+	textDoc.font = layer.fontName;																								// set font name
+	textDoc.fontSize = layer.fontSize;																						// set font size
 
 	//// fill color
 	var fill = layer.textColor;																										// store fill color from Sketch
@@ -1018,33 +1013,14 @@ function aeText(layer, opt_parent) {
 	addClipping(r);																																// add clipping mask if exists
 	addDropShadow(r, layer);																											// add drop shadow if exists
 	addInnerShadow(r, layer);																											// add inner shadow if exists
-	setLayerBlendMode(r, layer);
-
+	setLayerBlendMode(r, layer);																									// set blend mode
 
 	// transforms
-	// reposition anchor to the top left
-	r("ADBE Transform Group")("ADBE Scale").setValue([100*compMult, 100*compMult]);
-
-    var minHeightHalf = Math.round(Math.max(layer.fontSize, r.sourceRectAtTime(0,false).height) * -0.49);        // set blend mode// set scale
-	// r("ADBE Transform Group")("ADBE Position").setValue([ layer.position[0]*compMult, layer.position[1]*compMult]);
-    // set position
-	r("ADBE Transform Group")("ADBE Anchor Point").setValue([ 0, minHeightHalf * compMult]);
-
-	switch (layer.justification) {
-		case 1: // RIGHT_JUSTIFY
-			r("ADBE Transform Group")("ADBE Position").setValue([ (layer.position[0] + layer.size[0]) * compMult, (layer.position[1]) * compMult]);
-			break;
-		case 2: // CENTER_JUSTIFY
-			r("ADBE Transform Group")("ADBE Position").setValue([ (layer.position[0] + (layer.size[0]*0.5)) * compMult, (layer.position[1]) * compMult]);
-			break;
-		case 3: // FULL_JUSTIFY_LASTLINE_FULL
-			r("ADBE Transform Group")("ADBE Position").setValue([ (layer.position[0] + (layer.size[0]*0.5)) * compMult, (layer.position[1]) * compMult]);
-			break;
-		default: // LEFT_JUSTIFY
-			r("ADBE Transform Group")("ADBE Position").setValue([ layer.position[0] * compMult, (layer.position[1]) * compMult]);
-	}
-
-
+	r("ADBE Transform Group")("ADBE Anchor Point").setValue([ Math.floor(layer.size[0] * -0.5),
+										Math.round((r.sourceRectAtTime(0,false).height + layer.fontSize)*-0.49)]);  // reposition anchor to the top left
+	r("ADBE Transform Group")("ADBE Scale").setValue([100*compMult, 100*compMult]);								// set scale
+	r("ADBE Transform Group")("ADBE Position").setValue([ layer.position[0]*compMult,
+																												layer.position[1]*compMult]);						// set position
 	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);														// set opacity
 
 	r.selected = true;

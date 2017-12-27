@@ -24,7 +24,7 @@ if(typeof JSON!=="object"){JSON={}}(function(){function f(n){return n<10?"0"+n:n
 
 //================ VARIABLES ======================
 var scriptName = 'Sketch2AE';
-var scriptVersion = '0.53';
+var scriptVersion = '0.52';
 var defaultBoxText = 'Paste Sketch code';
 var clippingMask = null;
 var thisComp = null;
@@ -551,12 +551,12 @@ function addInnerShadow(r, layer) {
 // DEPRECIATED?
 function addClipping(layer) {
 	if (clippingMask > 0) {
-	 	var setMatte = layer("ADBE Effect Parade").addProperty("ADBE Set Matte3");
-	 	 clippingMask++;
-	 	 setMatte('ADBE Set Matte3-0001').setValue(clippingMask);
-	 } else {
-	 	return;
-	 }
+		var setMatte = layer("ADBE Effect Parade").addProperty("ADBE Set Matte3");
+			clippingMask++;
+			setMatte('ADBE Set Matte3-0001').setValue(clippingMask);
+	} else {
+		return;
+	}
 }
 
 /** helper func that adds tangent data to the path object
@@ -597,8 +597,8 @@ function aeArtboard(layer) {
 		thisComp.openInViewer();																										// open new comp
 	}
 
-    if (typeof app.activeViewer  !== "undefined") {
-	    app.activeViewer.setActive();																									// set the viewer to active
+     if (typeof app.activeViewer  !== "undefined") {
+        app.activeViewer.setActive();																									// set the viewer to active
     }
 	compMult = getCompMultiplier(layer.size[0]);																	// above code is skipped so it gets the comp multiplier foro
 }
@@ -609,7 +609,6 @@ function aeArtboard(layer) {
 		@param {opt_parent} layer obj - optional, parent new layer to parent layer if present
 */
 function aeGroup(layer, opt_parent) {
-	if (layer.layers.length < 1) { return; }																			// skip if no child layers
 	var r = thisComp.layers.addShape();																						// create a new empty shape layer
 	r.guideLayer = true;																													// set it as a guide layer
 	r.name = '\u25BD ' + layer.name;																							// add a twirl down icon to the start of the layer name
@@ -628,8 +627,7 @@ function aeGroup(layer, opt_parent) {
 	r(2)(1)(2).addProperty("ADBE Vector Shape - Rect");														// create a rectangle
 	r(2)(1)(2)(1)("ADBE Vector Rect Size").setValue([	layer.size[0]*compMult,
 																										layer.size[1]*compMult]);		// size
-	// r(2)(1)(2)(1)("ADBE Vector Rect Position").expression = 'thisProperty.propertyGroup(1)(2)/2';			// expression to scale from top left
-	r(2)(1)(2)(1)("ADBE Vector Rect Position").setValue((layer.size/2) *compMult);
+	r(2)(1)(2)(1)("ADBE Vector Rect Position").expression = 'thisProperty.propertyGroup(1)(2)/2';			// expression to scale from top left
 
 	// fill
 	var fillColor = r(2)(1)(2).addProperty("ADBE Vector Graphic - Fill");					// give the rect a fill so it's selectable
@@ -645,7 +643,6 @@ function aeGroup(layer, opt_parent) {
 	// transforms
 	r("ADBE Transform Group")("ADBE Position").setValue([	layer.position[0]*compMult,
 																												layer.position[1]*compMult]);		// set position
-	// app.executeCommand(10312);																										// center anchor point
 
 	if (layer.hasClippingMask) {
 		clippingMask = 1;
@@ -664,6 +661,7 @@ function aeSymbol(layer, opt_parent) {
 	var symbolPrecomp = createSymbol(layer);																			// fancy func that checks if symbol exists
 	var r = thisComp.layers.add(symbolPrecomp, symbolPrecomp.duration);						// add the symbol to comp
 	r.name = '\u21BB ' + r.name;																									// add symbol icon to layer name
+	r.selected = false;																														// deselect layer
 	r.collapseTransformation = true;																							// enable continuous rasterize
 
 	if (opt_parent !== null) {																										// check for parenting
@@ -687,9 +685,6 @@ function aeSymbol(layer, opt_parent) {
 																												layer.position[1]*compMult]); 	// set position
 	r("ADBE Transform Group")("ADBE Scale").setValue(scaleVal);														// set scale
 	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);										// set opacity
-	r.selected = true;
-	app.executeCommand(10312);																										// center anchor point
-	r.selected = false;																														// deselect layer
 }
 
 /** create a rectangle shape layer
@@ -716,7 +711,7 @@ function aeRect(layer, opt_parent) {
 
 	r(2)(1)(2).addProperty("ADBE Vector Shape - Rect");														// create a rectangle shape
 	r(2)(1)(2)(1)("ADBE Vector Rect Size").setValue( layer.size );								// set the size
-	// r(2)(1)(2)(1)("ADBE Vector Rect Position").setValue( layer.size/2 )						// reposition shape to top left
+	r(2)(1)(2)(1)("ADBE Vector Rect Position").expression = 'thisProperty.propertyGroup(1)(2)/2';		// expression to scale from top left
 	r(2)(1)(2)(1)("ADBE Vector Rect Roundness").setValue(layer.roundness);				// set the corner roundness
 
 	addStroke(r, layer);																													// add stroke if exists
@@ -729,8 +724,8 @@ function aeRect(layer, opt_parent) {
 	// transforms
 	r(2)(1)("ADBE Vector Transform Group")("ADBE Vector Scale").setValue([100*compMult, 	// set scale
 																																				100*compMult]);
-	r("ADBE Transform Group")("ADBE Position").setValue([	(layer.position[0]+layer.size[0]/2)*compMult,
-																												(layer.position[1]+layer.size[1]/2)*compMult]);			// set position
+	r("ADBE Transform Group")("ADBE Position").setValue([	layer.position[0]*compMult,
+																												layer.position[1]*compMult]);		// set position
 	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);										// set opacity
 }
 
@@ -757,7 +752,7 @@ function aeEllipse(layer, opt_parent) {
 
 	r(2)(1)(2).addProperty("ADBE Vector Shape - Ellipse");												// create an ellipse shape
 	r(2)(1)(2)(1)("ADBE Vector Ellipse Size").setValue(layer.size);								// set the size
-	// r(2)(1)(2)(1)("ADBE Vector Ellipse Position").setValue( layer.size/2 )				// reposition shape to top left
+	r(2)(1)(2)(1)("ADBE Vector Ellipse Position").expression = 'thisProperty.propertyGroup(1)(2)/2';	// expression to scale from top left
 
 	addStroke(r, layer);																													// add stroke if exists
 	addFill(r, layer);																														// add fill if exists
@@ -769,8 +764,8 @@ function aeEllipse(layer, opt_parent) {
 	// transforms
 	r(2)(1)("ADBE Vector Transform Group")("ADBE Vector Scale").setValue([100*compMult,
 																																				100*compMult]); 	// set scale
-	r("ADBE Transform Group")("ADBE Position").setValue([	(layer.position[0]+layer.size[0]/2)*compMult,
-																												(layer.position[1]+layer.size[1]/2)*compMult]);			// set position
+	r("ADBE Transform Group")("ADBE Position").setValue([	layer.position[0]*compMult,
+																												layer.position[1]*compMult]);			// set position
 	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);											// set opacity
 }
 
@@ -782,6 +777,7 @@ function aeEllipse(layer, opt_parent) {
 function aeCompound(layer, opt_parent) {
 	var r = thisComp.layers.addShape();																						// add empty shape layer
 	r.name = layer.name;																													// set layer name
+	r.selected = false;																														// deselect layer
 	if (opt_parent !== null) {																										// check for parenting
 		r.parent = opt_parent;																											// parent layer
 		r.moveAfter(opt_parent);																										// move below parent layer
@@ -821,12 +817,8 @@ function aeCompound(layer, opt_parent) {
 			group("ADBE Vector Transform Group")("ADBE Vector Anchor").setValue([0,0]);														// zero out anchor point
 			group("ADBE Vector Transform Group")("ADBE Vector Position").setValue(layer.layers[i].position);			// set position of path
 			var vect = group(2).addProperty("ADBE Vector Shape - Group");																					// add a path shape
-				if (layer.layers[i].path.points.length < 1) { return; }																												// skip if no vertices
 				var path = vect.property("ADBE Vector Shape");																											// create a vector object
 				var vertices = layer.layers[i].path.points;																													// get vertex data
-				if (vertices.length < 1) {
-					return;
-				}
 				var inTangents = layer.layers[i].path.inTangents;																										// get tangent data
 				var outTangents = layer.layers[i].path.outTangents;																									// get tangent data
 				var shapeClosed = layer.layers[i].path.closed;																											// is path closed
@@ -862,9 +854,6 @@ function aeCompound(layer, opt_parent) {
 			var merge = r(2)(1)(2).addProperty("ADBE Vector Filter - Merge");					// add merge paths
 					merge("ADBE Vector Merge Type").setValue(bool+2);											// set merge type
 	}
-	r.selected = true;
-	app.executeCommand(10312);																										// center anchor point
-	r.selected = false;																														// deselect layer
 }
 
 
@@ -873,13 +862,13 @@ function aeCompound(layer, opt_parent) {
 		@param {opt_parent} layer obj - optional, parent new layer to parent layer if present
 */
 function aePath(layer, opt_parent) {
-	if (layer.path.points.length < 1) { return; }																	// skip if no vertices
 	var r = thisComp.layers.addShape();																						// add empty shape layer
 	r.name = layer.name;																													// set layer name
+	r.selected = false;																														// deselect layer
 	if (opt_parent !== null) {																										// check for parenting
 		r.parent = opt_parent;																											// parent layer
 		r.moveAfter(opt_parent);																										// move below parent layer
-		r.enabled = (layer.isVisible && opt_parent.enabled );												// set layer visibility (eyeball)
+		r.enabled = (layer.isVisible && opt_parent.enabled );																									// set layer visibility (eyeball)
 	} else {
 		labelColor = (Math.max(labelColor, 1) + 1) % 16;														// increment label color
 		r.enabled = layer.isVisible;																									// set layer visibility (eyeball)
@@ -890,7 +879,6 @@ function aePath(layer, opt_parent) {
 	group(2).addProperty("ADBE Vector Shape - Group");														// name it the same as the layer
 	var path = group(2)(1).property("ADBE Vector Shape");													// create a vector object
 	var vertices = layer.path.points;																							// get vertex data
-	if (vertices.length < 1) { return; }																					// return if no vertices
 	var inTangents = layer.path.inTangents;																				// get tangent data
 	var outTangents = layer.path.outTangents;																			// get tangent data
 	var shapeClosed = layer.path.closed;																					// is path closed
@@ -915,9 +903,6 @@ function aePath(layer, opt_parent) {
 	r("ADBE Transform Group")("ADBE Position").setValue([	layer.position[0]*compMult,
 																												layer.position[1]*compMult]);		// set position
 	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);										// set opacity
-	r.selected = true;
-	app.executeCommand(10312);																										// center anchor point
-	r.selected = false;																														// deselect layer
 }
 
 
@@ -927,132 +912,109 @@ function aePath(layer, opt_parent) {
 */
 function aeText(layer, opt_parent) {
 	try {
-	  var r;
+
+    var r;
+
     if (typeof thisComp.layers.addBoxText !== "undefined") {
-        r = thisComp.layers.addBoxText([layer.size[0], layer.size[1]], '');				// add empty text box layer
+         r = thisComp.layers.addBoxText([layer.size[0], layer.size[1]], '');
     } else {
-        r = thisComp.layers.addText('');
-        r.property("Position").setValue([layer.position[0], layer.position[1]]);
+         r = thisComp.layers.addText('');
+         //r.property("Position").setValue([layer.position[0], layer.position[1]]);
     }
+
     // var r = thisComp.layers.addBoxText([layer.size[0], layer.size[1]], '');				// add empty text box layer
-    r.name = layer.name;																														// set layer name
-		r.selected = false;
-																												// deselect layer
-	if (opt_parent !== null) {																										// check for parenting
-		r.parent = opt_parent;																											// parent layer
-		r.moveAfter(opt_parent);																										// move below parent layer
-		r.enabled = (layer.isVisible && opt_parent.enabled );												// set layer visibility (eyeball)
-	} else {
-		labelColor = (Math.max(labelColor, 1) + 1) % 16;														// increment label color
-		r.enabled = layer.isVisible;																								// set layer visibility (eyeball)
-	}
-	r.label = labelColor;																									// set label color
+    r.name = layer.name;																													// set layer name
+    r.selected = false;    // deselect layer
 
 
-	var textProp = r("ADBE Text Properties")("ADBE Text Document");								// new text obj
+		if (opt_parent !== null) {																										// check for parenting
+			r.parent = opt_parent;																											// parent layer
+			r.moveAfter(opt_parent);																										// move below parent layer
+			r.enabled = (layer.isVisible && opt_parent.enabled );												// set layer visibility (eyeball)
+		} else {
+			labelColor = (Math.max(labelColor, 1) + 1) % 16;														// increment label color
+			r.enabled = layer.isVisible;																								// set layer visibility (eyeball)
+		}
+		r.label = labelColor;																													// set label color
 
-	var textDoc = textProp.value;																									// store text values
-	textDoc.resetCharStyle();																											// reset character styles
-	textDoc.resetParagraphStyle();																								// reset paragraph styles
+		var textProp = r("ADBE Text Properties")("ADBE Text Document");								// new text obj
 
-	textDoc.font = layer.fontName;		// set font name
-	if(layer.fontSize > 0) {
-		textDoc.fontSize = layer.fontSize;
-        // set font size
-	} else {
-        return;
-    }
+		var textDoc = textProp.value;																									// store text values
+		textDoc.resetCharStyle();																											// reset character styles
+		textDoc.resetParagraphStyle();																								// reset paragraph styles
 
-	//// fill color
-	var fill = layer.textColor;																										// store fill color from Sketch
-	textDoc.applyFill = (layer.hasFill === 1);																		// add fill if enabled in Sketch
-	textDoc.fillColor = [fill[0], fill[1], fill[2]];															// set fill color
-	//// text color opacity
-	if (fill[3] < 1) {
-		var textOpacity = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");
-				textOpacity.name = 'Text Opacity';
+		textDoc.font = layer.fontName;																								// set font name
+		textDoc.fontSize = layer.fontSize;																						// set font size
+
+		//// fill color
+		var fill = layer.textColor;																										// store fill color from Sketch
+		textDoc.applyFill = (layer.hasFill === 1);																		// add fill if enabled in Sketch
+		textDoc.fillColor = [fill[0], fill[1], fill[2]];															// set fill color
+
+		//// text color opacity
 		if (fill[3] < 1) {
-				var fillOpacity = textOpacity("ADBE Text Animator Properties").addProperty("ADBE Text Fill Opacity");
-						fillOpacity.setValue(fill[3] * 100);
+			var textOpacity = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");
+					textOpacity.name = 'Text Opacity';
+			if (fill[3] < 1) {
+					var fillOpacity = textOpacity("ADBE Text Animator Properties").addProperty("ADBE Text Fill Opacity");
+							fillOpacity.setValue(fill[3] * 100);
+			}
 		}
-	}
 
-	//// stroke color
-	if (layer.stroke !== null && layer.stroke.length > 0) {																									// if it has a stroke
+		//// stroke color
+		if (layer.stroke !== null && layer.stroke.length > 0) {																									// if it has a stroke
 
-		var stroke = layer.stroke[0];																								// get the first stroke in
-		textDoc.applyStroke = (stroke.enabled === 1);																// add stroke if enabled in Sketch
-		textDoc.strokeColor = [stroke.color[0], stroke.color[1], stroke.color[2]];	// set stroke color
-		textDoc.strokeWidth = (stroke.width > 0) ? stroke.width : 0;								// set stroke width
-		//// text stroke opacity
-		if (stroke.opacity < 100) {																																									// if stroke fill is less than 100% opacity
-			var textOpacity = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");													// add a text animator
-				textOpacity.name = 'Text Opacity';																																			// name it Text Opacity
-			var strokeOpacity = textOpacity("ADBE Text Animator Properties").addProperty("ADBE Text Stroke Opacity");	// add an opacity value
-					strokeOpacity.setValue(stroke.opacity);																																// set the opacity value
+			var stroke = layer.stroke[0];																								// get the first stroke in
+			textDoc.applyStroke = (stroke.enabled === 1);																// add stroke if enabled in Sketch
+			textDoc.strokeColor = [stroke.color[0], stroke.color[1], stroke.color[2]];	// set stroke color
+			textDoc.strokeWidth = (stroke.width > 0) ? stroke.width : 0;								// set stroke width
+			//// text stroke opacity
+			if (stroke.opacity < 100) {																																									// if stroke fill is less than 100% opacity
+				var textOpacity = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");													// add a text animator
+					textOpacity.name = 'Text Opacity';																																			// name it Text Opacity
+				var strokeOpacity = textOpacity("ADBE Text Animator Properties").addProperty("ADBE Text Stroke Opacity");	// add an opacity value
+						strokeOpacity.setValue(stroke.opacity);																																// set the opacity value
+			}
 		}
-	}
 
-	textFill();																																		// add multiple text fill colors
+		textFill();																																		// add multiple text fill colors
 
-	//// text metrics
-	textDoc.tracking = Math.floor(layer.tracking * compMult);
+		//// text metrics
+		textDoc.tracking = Math.floor(layer.tracking * compMult);
 
-	//// paragraph
-	textDoc.justification = paragraphJustification(layer.justification);					// set paragraph alignment
-	textDoc.boxTextSize = [layer.size[0] * 1.05, layer.size[1] * 1.1];						// resize the text box a little taller
+		//// paragraph
+		textDoc.justification = paragraphJustification(layer.justification);					// set paragraph alignment
+		textDoc.boxTextSize = [layer.size[0] * 1.05, layer.size[1] * 1.1];						// resize the text box a little taller
 
-	//// line height
-	var autoLineHeight = Math.round(layer.fontSize * 1.202);															// derive the estimated height from the font size
-	var manualLineHeight = layer.lineHeight - autoLineHeight;															// get the difference of the line height and the font size
-	var lineHeight = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");			// create a new text animator
-			lineHeight.name = 'Line Height';																									// name it line height
-			lineHeight("ADBE Text Animator Properties").addProperty("ADBE Text Line Spacing");// add a Line Spacing element
-			lineHeight(1).addProperty("ADBE Text Selector");																	// add a selector
-			lineHeight(2).property("ADBE Text Line Spacing").setValue([0,manualLineHeight]);	// set value
+		//// line height
+		var autoLineHeight = Math.round(layer.fontSize * 1.202);															// derive the estimated height from the font size
+		var manualLineHeight = layer.lineHeight - autoLineHeight;															// get the difference of the line height and the font size
+		var lineHeight = r("ADBE Text Properties")(4).addProperty("ADBE Text Animator");			// create a new text animator
+				lineHeight.name = 'Line Height';																									// name it line height
+				lineHeight("ADBE Text Animator Properties").addProperty("ADBE Text Line Spacing");// add a Line Spacing element
+				lineHeight(1).addProperty("ADBE Text Selector");																	// add a selector
+				lineHeight(2).property("ADBE Text Line Spacing").setValue([0,manualLineHeight]);	// set value
 
+		textProp.setValue(textDoc);           																				// set text properties
+		textProp.setValue(layer.stringVal);   																				// set text string
 
-	textProp.setValue(textDoc);           																				// set text properties
-	textProp.setValue(layer.stringVal);   																				// set text string
+		addClipping(r);																																// add clipping mask if exists
+		addDropShadow(r, layer);																											// add drop shadow if exists
+		addInnerShadow(r, layer);																											// add inner shadow if exists
+		setLayerBlendMode(r, layer);																									// set blend mode
 
-	addClipping(r);																																// add clipping mask if exists
-	addDropShadow(r, layer);																											// add drop shadow if exists
-	addInnerShadow(r, layer);																											// add inner shadow if exists
-	setLayerBlendMode(r, layer);
+		// transforms
+		r("ADBE Transform Group")("ADBE Anchor Point").setValue([ Math.floor(layer.size[0] * -0.5),
+											Math.round((r.sourceRectAtTime(0,false).height + layer.fontSize)*-0.49)]);  // reposition anchor to the top left
+		r("ADBE Transform Group")("ADBE Scale").setValue([100*compMult, 100*compMult]);								// set scale
+		r("ADBE Transform Group")("ADBE Position").setValue([ layer.position[0]*compMult,
+																													layer.position[1]*compMult]);						// set position
+		r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);														// set opacity
 
-
-	// transforms
-	// reposition anchor to the top left
-	r("ADBE Transform Group")("ADBE Scale").setValue([100*compMult, 100*compMult]);
-
-    var minHeightHalf = Math.round(Math.max(layer.fontSize, r.sourceRectAtTime(0,false).height) * -0.49);        // set blend mode// set scale
-	// r("ADBE Transform Group")("ADBE Position").setValue([ layer.position[0]*compMult, layer.position[1]*compMult]);
-    // set position
-	r("ADBE Transform Group")("ADBE Anchor Point").setValue([ 0, minHeightHalf * compMult]);
-
-	switch (layer.justification) {
-		case 1: // RIGHT_JUSTIFY
-			r("ADBE Transform Group")("ADBE Position").setValue([ (layer.position[0] + layer.size[0]) * compMult, (layer.position[1]) * compMult]);
-			break;
-		case 2: // CENTER_JUSTIFY
-			r("ADBE Transform Group")("ADBE Position").setValue([ (layer.position[0] + (layer.size[0]*0.5)) * compMult, (layer.position[1]) * compMult]);
-			break;
-		case 3: // FULL_JUSTIFY_LASTLINE_FULL
-			r("ADBE Transform Group")("ADBE Position").setValue([ (layer.position[0] + (layer.size[0]*0.5)) * compMult, (layer.position[1]) * compMult]);
-			break;
-		default: // LEFT_JUSTIFY
-			r("ADBE Transform Group")("ADBE Position").setValue([ layer.position[0] * compMult, (layer.position[1]) * compMult]);
-	}
-
-
-	r("ADBE Transform Group")("ADBE Opacity").setValue(layer.opacity);														// set opacity
-
-	r.selected = true;
-	app.executeCommand(10312);																										// center anchor point
-	r.selected = false;																														// deselect layer
 	} catch(e) {
 		alert(e.toString() + "\nError on line: " + e.line.toString());
 	}
+
 	function textFill() {																													// func to add multiple fills to a text layer
 		if (layer.fill !== null) {																									// if it actually has a fill
 
@@ -1126,10 +1088,6 @@ function aeImage(layer, opt_parent) {
 	r("ADBE Transform Group")("ADBE Anchor Point").setValue([0,0]);
 	r("ADBE Transform Group")("ADBE Scale").setValue([(100/layer.scale)*compMult,
 																										(100/layer.scale)*compMult]);								// set scale
-
-	r.selected = true;
-	app.executeCommand(10312);																										// center anchor point
-	r.selected = false;																														// deselect layer
 
 	function getItem(itemName, itemInstanceName, locationObject) {								// func to get image file from disc
 		if (locationObject.numItems > 0) {
@@ -1257,7 +1215,6 @@ btn_pasteSketch.onClick = function() {
 
 
 		if (w.show() === 1) {
-			if (et_codeField.text == 'Paste Sketch code') { alert('Oops gotta paste the code!\nBe sure you CMD+V to paste the Sketch layer code from your clipboard into the text box.'); return; }
 			buildLayers(et_codeField.text);																										// run the master func
 		}
 };

@@ -550,13 +550,13 @@ function addInnerShadow(r, layer) {
 
 // DEPRECIATED?
 function addClipping(layer) {
-	if (clippingMask > 0) {
-	 	var setMatte = layer("ADBE Effect Parade").addProperty("ADBE Set Matte3");
-	 	 clippingMask++;
-	 	 setMatte('ADBE Set Matte3-0001').setValue(clippingMask);
-	 } else {
-	 	return;
-	 }
+	//if (clippingMask > 0) {
+	// 		var setMatte = layer("ADBE Effect Parade").addProperty("ADBE Set Matte3");
+	// 	 clippingMask++;
+	// 	 setMatte('ADBE Set Matte3-0001').setValue(clippingMask);
+	// } else {
+	// 	return;
+	// }
 }
 
 /** helper func that adds tangent data to the path object
@@ -674,7 +674,7 @@ function aeSymbol(layer, opt_parent) {
 	}
 	r.label = labelColor;																													// set label color
 
-	addClipping(r);																																// add clipping mask if exists
+	//addClipping(r);																																// add clipping mask if exists
 	addDropShadow(r, layer);																											// add drop shadow if exists
 	addInnerShadow(r, layer);																											// add inner shadow if exists
 	setLayerBlendMode(r, layer);																									// set blend mode
@@ -721,7 +721,7 @@ function aeRect(layer, opt_parent) {
 
 	addStroke(r, layer);																													// add stroke if exists
 	addFill(r, layer);																														// add fill if exists
-	addClipping(r);																																// add clipping mask if exists
+	//addClipping(r);																																// add clipping mask if exists
 	addDropShadow(r, layer);																											// add drop shadow if exists
 	addInnerShadow(r, layer);																											// add inner shadow if exists
 	setLayerBlendMode(r, layer);																									// set blend mode
@@ -761,7 +761,7 @@ function aeEllipse(layer, opt_parent) {
 
 	addStroke(r, layer);																													// add stroke if exists
 	addFill(r, layer);																														// add fill if exists
-	addClipping(r);																																// add clipping mask if exists
+	//addClipping(r);																																// add clipping mask if exists
 	addDropShadow(r, layer);																											// add drop shadow if exists
 	addInnerShadow(r, layer);																											// add inner shadow if exists
 	setLayerBlendMode(r, layer);																									// set blend mode
@@ -846,7 +846,7 @@ function aeCompound(layer, opt_parent) {
 
 	addStroke(r, layer);																													// add stroke if exists
 	addFill(r, layer);																														// add fill if exists
-	addClipping(r);																																// add clipping mask if exists
+	//addClipping(r);																																// add clipping mask if exists
 	addDropShadow(r, layer);																											// add drop shadow if exists
 	addInnerShadow(r, layer);																											// add inner shadow if exists
 	setLayerBlendMode(r, layer);																									// set blend mode
@@ -906,7 +906,7 @@ function aePath(layer, opt_parent) {
 
 	addStroke(r, layer);																													// add stroke if exists
 	addFill(r, layer);																														// add fill if exists
-	addClipping(r);																																// add clipping mask if exists
+	//addClipping(r);																																// add clipping mask if exists
 	addDropShadow(r, layer);																											// add drop shadow if exists
 	addInnerShadow(r, layer);																											// add inner shadow if exists
 	setLayerBlendMode(r, layer);																									// set blend mode
@@ -1015,7 +1015,7 @@ function aeText(layer, opt_parent) {
 	textProp.setValue(textDoc);           																				// set text properties
 	textProp.setValue(layer.stringVal);   																				// set text string
 
-	addClipping(r);																																// add clipping mask if exists
+	//addClipping(r);																																// add clipping mask if exists
 	addDropShadow(r, layer);																											// add drop shadow if exists
 	addInnerShadow(r, layer);																											// add inner shadow if exists
 	setLayerBlendMode(r, layer);
@@ -1115,7 +1115,7 @@ function aeImage(layer, opt_parent) {
 	}
 	r.label = labelColor;																													// set label color
 
-	addClipping(r);																																// add clipping mask if exists
+	//addClipping(r);																																// add clipping mask if exists
 	addDropShadow(r, layer);																											// add drop shadow if exists
 	addInnerShadow(r, layer);																											// add inner shadow if exists
 	setLayerBlendMode(r, layer);																									// set blend mode
